@@ -52,7 +52,6 @@ class Field:
 
     def draw(self, root):
         root.blit(self.sprite, self.pos)
-        pg.display.update()
         if not self.pit:
             if len(self.draw_sprites) != 0:
                 amount = len(self.draw_sprites)
@@ -77,7 +76,7 @@ class Player:
     def __init__(self, fields):
         self.pos = [0, 3]
         self.arrow = True
-        self.looking = 1
+        self.looking = Direction.RIGHT.value
         self.fields = fields
         return
 
@@ -97,14 +96,14 @@ class Player:
 
     def pick_up(self):
         if self.fields[self.pos[0]][self.pos[1]].gold:
-            print('YOU WON !!!!')
+            print('YOU WON !!!!')                           # TODO: same as in move do not close game just reward
             exit()
 
     def shoot(self):                                        # we return True or False so an AI could be implemented
         self.arrow = False                                  # more easily
         match self.looking:
             case Direction.UP.value:
-                i = self.pos[0]
+                i = self.pos[1]
                 while i > 0:
                     i -= 1
                     if self.fields[self.pos[0]][i].wumpus:
@@ -114,7 +113,7 @@ class Player:
                 return False
 
             case Direction.DOWN.value:
-                i = 3 - self.pos[0]
+                i = 3 - self.pos[1]
                 while i < 3:
                     i += 1
                     if self.fields[self.pos[0]][i].wumpus:
@@ -124,7 +123,7 @@ class Player:
                 return False
 
             case Direction.RIGHT.value:
-                i = 3 - self.pos[1]
+                i = self.pos[0]
                 while i < 3:
                     i += 1
                     if self.fields[i][self.pos[1]].wumpus:
@@ -134,7 +133,7 @@ class Player:
                 return False
 
             case Direction.LEFT.value:
-                i = self.pos[1]
+                i = 3 - self.pos[0]
                 while i > 0:
                     i -= 1
                     if self.fields[i][self.pos[1]].wumpus:
@@ -165,7 +164,10 @@ class Player:
                 if self.pos[0] != 0:
                     self.pos[0] -= 1
                 else: return False
-
+        cur_field = self.fields[self.pos[0]][self.pos[1]]
+        if cur_field.wumpus or cur_field.pit:
+            print('GAME OVER YOU DIED')                     # TODO: change when ai is implemented to not close program
+            exit()
 
         return True
 
