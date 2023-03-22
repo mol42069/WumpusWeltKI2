@@ -99,6 +99,11 @@ class Player:
             print('YOU WON !!!!')                           # TODO: same as in move do not close game just reward
             exit()
 
+    def del_stench(self):
+        for row in self.fields:
+            for field in row:
+                field.stench = False
+
     def shoot(self):                                        # we return True or False so an AI could be implemented
         self.arrow = False                                  # more easily
         match self.looking:
@@ -109,9 +114,9 @@ class Player:
                     if self.fields[self.pos[0]][i].wumpus:
                         self.fields[self.pos[0]][i].wumpus = False
                         print('WUMPUS DEATH-SCREAM')
+                        self.del_stench()
                         return True
                 return False
-
             case Direction.DOWN.value:
                 i = 3 - self.pos[1]
                 while i < 3:
@@ -119,9 +124,9 @@ class Player:
                     if self.fields[self.pos[0]][i].wumpus:
                         self.fields[self.pos[0]][i].wumpus = False
                         print('WUMPUS DEATH-SCREAM')
+                        self.del_stench()
                         return True
                 return False
-
             case Direction.RIGHT.value:
                 i = self.pos[0]
                 while i < 3:
@@ -129,9 +134,9 @@ class Player:
                     if self.fields[i][self.pos[1]].wumpus:
                         self.fields[i][self.pos[1]].wumpus = False
                         print('WUMPUS DEATH-SCREAM')
+                        self.del_stench()
                         return True
                 return False
-
             case Direction.LEFT.value:
                 i = 3 - self.pos[0]
                 while i > 0:
@@ -139,6 +144,7 @@ class Player:
                     if self.fields[i][self.pos[1]].wumpus:
                         self.fields[i][self.pos[1]].wumpus = False
                         print('WUMPUS DEATH-SCREAM')
+                        self.del_stench()
                         return True
                 return False
 
@@ -149,17 +155,14 @@ class Player:
                 if self.pos[1] != 0:
                     self.pos[1] -= 1
                 else: return False
-
             case Direction.RIGHT.value:
                 if self.pos[0] != 3:
                     self.pos[0] += 1
                 else: return False
-
             case Direction.DOWN.value:
                 if self.pos[1] != 3:
                     self.pos[1] += 1
                 else: return False
-
             case Direction.LEFT.value:
                 if self.pos[0] != 0:
                     self.pos[0] -= 1
@@ -168,10 +171,7 @@ class Player:
         if cur_field.wumpus or cur_field.pit:
             print('GAME OVER YOU DIED')                     # TODO: change when ai is implemented to not close program
             exit()
-
         return True
-
-
 
 class Direction(Enum):
     UP = 0
@@ -191,7 +191,6 @@ class Sprites(Enum):
     player_up = 8
     player_down = 9
 
-
 def load_sprites():
     sprites = [
                 pg.image.load('./resources/empty_field.png'),   # 0
@@ -205,8 +204,4 @@ def load_sprites():
                 pg.image.load('./resources/player_up.png'),     # 8
                 pg.image.load('./resources/player_down.png')    # 9
             ]
-
     return sprites
-
-
-
