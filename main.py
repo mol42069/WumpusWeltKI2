@@ -1,6 +1,7 @@
 import pygame as pg
 from scripts import game
 import random as rnd
+
 screen_size = (800, 800)
 pg.init()
 pg.display.set_caption('WumpusWelt')
@@ -8,9 +9,13 @@ root = pg.display.set_mode(screen_size)
 sprites = game.load_sprites()
 fields = []
 player = game.Player(fields)
+#############################
+# choice to see all or not: #
+visible = True
+#############################
 
 def layout_init():
-    global sprites, fields, player
+    global sprites, fields, player, visible
     for x in range(0, 4):
         row =[]
         for y in range(0, 4):
@@ -18,7 +23,7 @@ def layout_init():
                 x * 200,
                 y * 200
             ]
-            row.append(game.Field(pos, sprites[game.Sprites.empty.value], sprites, player))
+            row.append(game.Field(pos, sprites[game.Sprites.empty.value], sprites, player, visible))
             row[-1].draw(root)
             pg.display.update()
         fields.append(row)
@@ -37,7 +42,6 @@ def gen_wg():
                 else:
                     fields[pos[0]][pos[1]].wumpus = True
                     wumpus = True
-
     gen_effects()
     return
 
@@ -87,12 +91,10 @@ def gen_effects():
 
 def go_draw():
     global fields, root
-
     for row in fields:
         for field in row:
             field.gen_drawing_sprites()
             root = field.draw(root)
-
 
 def main():
     global player
@@ -107,8 +109,6 @@ def main():
         if changed:
             go_draw()
             changed = False
-
-
         for event in pg.event.get():
             match event.type:
                 case pg.KEYDOWN:
@@ -125,13 +125,11 @@ def main():
                             # move
                         case pg.K_e:
                             player.pick_up()
-
                         case pg.K_f:
+                            # shoot an arrow
                             if player.arrow:
                                 player.shoot()
                                 changed = True
-
-
                 case pg.QUIT:                       # closing the program
                     running = False
 

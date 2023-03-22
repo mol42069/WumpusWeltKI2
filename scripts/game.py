@@ -3,8 +3,9 @@ import random as rnd
 from enum import Enum
 
 class Field:
-    def __init__(self, pos, field_sprite, sprites, player):
+    def __init__(self, pos, field_sprite, sprites, player, visible):
         self.pos = pos
+        self.visible = visible
         self.sprite = field_sprite
         self.sprites = sprites
         if rnd.randint(0, 5) == 0 and pos != (0, 600):          # there is a 20% chance that a field is a pit
@@ -24,51 +25,83 @@ class Field:
 
 
     def gen_drawing_sprites(self):
+
         pl_pos = self.pl.pos
         if pl_pos[0] * 200 == self.pos[0] and pl_pos[1] * 200 == self.pos[1]:
             self.player = True
         else:
             self.player = False
+
         self.draw_sprites = []
-        if self.player:
-            match self.pl.looking:
-                case Direction.LEFT.value:
-                    self.draw_sprites.append(self.sprites[Sprites.player_left.value])
-                case Direction.RIGHT.value:
-                    self.draw_sprites.append(self.sprites[Sprites.player_right.value])
-                case Direction.UP.value:
-                    self.draw_sprites.append(self.sprites[Sprites.player_up.value])
-                case Direction.DOWN.value:
-                    self.draw_sprites.append(self.sprites[Sprites.player_down.value])
-        if self.breeze:
-            self.draw_sprites.append(self.sprites[Sprites.breeze.value])
-        if self.stench:
-            self.draw_sprites.append(self.sprites[Sprites.stench.value])
-        if self.wumpus:
-            self.draw_sprites.append(self.sprites[Sprites.wumpus.value])
-        if self.gold:
-            self.draw_sprites.append(self.sprites[Sprites.gold.value])
-        return
+        if not self.visible:
+            if self.player:
+                if self.pit:
+                    self.draw_sprites.append(self.sprites[Sprites.pit.value])
+                else:
+                    if self.player:
+                        match self.pl.looking:
+                            case Direction.LEFT.value:
+                                self.draw_sprites.append(self.sprites[Sprites.player_left.value])
+                            case Direction.RIGHT.value:
+                                self.draw_sprites.append(self.sprites[Sprites.player_right.value])
+                            case Direction.UP.value:
+                                self.draw_sprites.append(self.sprites[Sprites.player_up.value])
+                            case Direction.DOWN.value:
+                                self.draw_sprites.append(self.sprites[Sprites.player_down.value])
+                    if self.breeze:
+                        self.draw_sprites.append(self.sprites[Sprites.breeze.value])
+                    if self.stench:
+                        self.draw_sprites.append(self.sprites[Sprites.stench.value])
+                    if self.wumpus:
+                        self.draw_sprites.append(self.sprites[Sprites.wumpus.value])
+                    if self.gold:
+                        self.draw_sprites.append(self.sprites[Sprites.gold.value])
+                    return
+            else:
+                self.draw_sprites.append(self.sprites[Sprites.shroud.value])
+        else:
+            if self.pit:
+                self.draw_sprites.append(self.sprites[Sprites.pit.value])
+            else:
+                if self.player:
+                    match self.pl.looking:
+                        case Direction.LEFT.value:
+                            self.draw_sprites.append(self.sprites[Sprites.player_left.value])
+                        case Direction.RIGHT.value:
+                            self.draw_sprites.append(self.sprites[Sprites.player_right.value])
+                        case Direction.UP.value:
+                            self.draw_sprites.append(self.sprites[Sprites.player_up.value])
+                        case Direction.DOWN.value:
+                            self.draw_sprites.append(self.sprites[Sprites.player_down.value])
+                if self.breeze:
+                    self.draw_sprites.append(self.sprites[Sprites.breeze.value])
+                if self.stench:
+                    self.draw_sprites.append(self.sprites[Sprites.stench.value])
+                if self.wumpus:
+                    self.draw_sprites.append(self.sprites[Sprites.wumpus.value])
+                if self.gold:
+                    self.draw_sprites.append(self.sprites[Sprites.gold.value])
+
+        if len(self.draw_sprites) == 0:
+            self.draw_sprites.append(self.sprites[Sprites.empty.value])
+            return
 
     def draw(self, root):
         root.blit(self.sprite, self.pos)
-        if not self.pit:
-            if len(self.draw_sprites) != 0:
-                amount = len(self.draw_sprites)
-                if amount != 0:
-                    sprite_height = 200 / amount
-                else:
-                    sprite_height = 0
-                if amount > 1:
-                    for i, sprite in enumerate(self.draw_sprites):
-                        i += 1
-                        pos = self.pos[1] + (sprite_height * (i - 1) - 20 * i)
-                        pos = [self.pos[0], pos]
-                        root.blit(sprite, pos)
-                else:
-                    root.blit(self.draw_sprites[0], self.pos)
+        amount = len(self.draw_sprites)
+        if amount == 1:
+            root.blit(self.draw_sprites[0], self.pos)
         else:
-            root.blit(self.sprites[Sprites.pit.value], self.pos)
+            if amount != 0:
+                sprite_height = 200 / amount
+            else:
+                sprite_height = 200
+            if amount > 0:
+                for i, sprite in enumerate(self.draw_sprites):
+                    i += 1
+                    pos = self.pos[1] + (sprite_height * (i - 1) - 20 * i)
+                    pos = [self.pos[0], pos]
+                    root.blit(sprite, pos)
         return root
 
 
@@ -190,6 +223,7 @@ class Sprites(Enum):
     player_left = 7
     player_up = 8
     player_down = 9
+    shroud = 10
 
 def load_sprites():
     sprites = [
@@ -202,6 +236,7 @@ def load_sprites():
                 pg.image.load('./resources/player.png'),        # 6
                 pg.image.load('./resources/player_left.png'),   # 7
                 pg.image.load('./resources/player_up.png'),     # 8
-                pg.image.load('./resources/player_down.png')    # 9
+                pg.image.load('./resources/player_down.png'),   # 9
+                pg.image.load('./resources/shroud.png')         # 10
             ]
     return sprites
